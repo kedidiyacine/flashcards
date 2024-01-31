@@ -6,6 +6,136 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Uses connection pooling
+  url       = env("POSTGRES_PRISMA_URL")
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Front {
+  id              Int       @id @default(autoincrement())
+  type            String?   @default("just a question")
+  timer           Int?
+  input           String?
+  attachement_url String?
+  belongsTo       FlashCard @relation(fields: [belongsToId], references: [id], onDelete: Cascade)
+  belongsToId     Int       @unique
+}
+
+model Back {
+  id              Int       @id @default(autoincrement())
+  answer          String?
+  attachement_url String?
+  belongsTo       FlashCard @relation(fields: [belongsToId], references: [id], onDelete: Cascade)
+  belongsToId     Int       @unique
+}
+
+model FlashCard {
+  id         Int    @id @default(autoincrement())
+  isPartOfId Int
+  back       Back?
+  front      Front?
+  isPartOf   Deck   @relation(fields: [isPartOfId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  decks     Deck[]
+
+  @@index([name])
+}
+
+model Deck {
+  id          Int         @id @default(autoincrement())
+  title       String?
+  description String?
+  visibility  String?     @default("public")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  isUnderId   Int
+  createdById String
+  createdBy   User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  isUnder     Category    @relation(fields: [isUnderId], references: [id], onDelete: Cascade)
+  flashCards  FlashCard[]
+
+  recentlyAccessed RecentlyAccessed[] @relation("recentlyAccessed")
+  favorites        Favorite[]         @relation("favorites")
+
+  @@index([title])
+}
+
+model RecentlyAccessed {
+  id         Int      @id @default(autoincrement())
+  deckId     Int
+  userId     String
+  accessDate DateTime @default(now())
+  deck       Deck     @relation("recentlyAccessed", fields: [deckId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([deckId, userId])
+  @@index([userId, accessDate], name: "recently_accessed_composite_index")
+}
+
+model Favorite {
+  id     Int    @id @default(autoincrement())
+  deckId Int
+  userId String
+  deck   Deck   @relation("favorites", fields: [deckId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], name: "favorite_index")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  decks         Deck[]
+  sessions      Session[]
+
+  recentlyAccessed      RecentlyAccessed[]
+  recentlyAccessedLimit Int                @default(10)
+  favorites             Favorite[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
