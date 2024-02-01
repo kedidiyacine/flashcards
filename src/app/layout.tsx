@@ -1,20 +1,28 @@
-import type { Metadata } from 'next';
-import { inter } from './lib/fonts';
-import './styles/globals.css';
+import '@/app/styles/globals.css';
 
-export const metadata: Metadata = {
-  title: 'Flashcards Home',
-  description: 'a website where you can try and create Flashcards.',
+import { cookies } from 'next/headers';
+
+import { TRPCReactProvider } from '@/trpc/react';
+import { inter } from './components/fonts';
+
+export const metadata = {
+  title: 'Flashcards',
+  description: 'create and play decks of flashcards',
+  icons: [{ rel: 'icon', url: '/favicon.ico' }],
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`font-sans ${inter.variable}`}>
+        <TRPCReactProvider cookies={cookies().toString()}>
+          {children}
+        </TRPCReactProvider>
+      </body>
     </html>
   );
 }

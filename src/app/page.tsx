@@ -1,7 +1,6 @@
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Home
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { DASHBOARD_PATH } from "./lib/utils";
+
+export default async function Home() {
+  redirect(DASHBOARD_PATH);
 }

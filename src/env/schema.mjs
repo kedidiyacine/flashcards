@@ -7,27 +7,57 @@ export const serverSchema = z.object({
     .string()
     .url()
     .refine(
-      (str) => !str.includes('YOUR_POSTGRES_URL_HERE'),
+      (str) => !str.includes('YOUR_DATABASE_URL_HERE'),
       'You forgot to change the default URL'
     ),
   DATABASE_PRISMA_URL: z
     .string()
     .url()
     .refine(
-      (str) => !str.includes('YOUR_POSTGRES_PRISMA_URL_HERE'),
-      'You forgot to change the default URL'
+      (str) => !str.includes('YOUR_DATABASE_PRISMA_URL_HERE'),
+      'You forgot to change the default PRISMA URL'
     ),
   DATABASE_URL_NON_POOLING: z
     .string()
     .url()
     .refine(
-      (str) => !str.includes('YOUR_POSTGRES_URL_NON_POOLING_HERE'),
-      'You forgot to change the default URL'
+      (str) => !str.includes('YOUR_DATABASE_URL_NON_POOLING_HERE'),
+      'You forgot to change the default URL NON POOLING'
     ),
-  DATABASE_USER: z.string(),
-  DATABASE_HOST: z.string(),
-  DATABASE_PASSWORD: z.string(),
-  DATABASE_DATABASE: z.string(),
+  DATABASE_USER: z
+    .string()
+    .refine(
+      (str) => !str.includes('YOUR_DATABASE_USER_HERE'),
+      'You forgot to change the default USER'
+    ),
+  DATABASE_HOST: z
+    .string()
+    .refine(
+      (str) => !str.includes('YOUR_DATABASE_HOST_HERE'),
+      'You forgot to change the default HOST'
+    ),
+  DATABASE_PASSWORD: z
+    .string()
+    .refine(
+      (str) => !str.includes('YOUR_DATABASE_PASSWORD_HERE'),
+      'You forgot to change the default PASSWORD'
+    ),
+  DATABASE_DATABASE: z
+    .string()
+    .refine(
+      (str) => !str.includes('YOUR_DATABASE_DEPLOYER_HERE'),
+      'You forgot to change the default DEPLOYER'
+    ),
+  AUTH_SECRET: z
+    .string()
+    .refine((str) => !str.includes('YOUR_AUTH_SECRET_HERE')),
+  AUTH_URL: z.string().refine((str) => !str.includes('YOUR_AUTH_URL_HERE')),
+  GOOGLE_CLIENT_ID: z
+    .string()
+    .refine((str) => !str.includes('YOUR_GOOGLE_CLIENT_ID_HERE')),
+  GOOGLE_CLIENT_SECRET: z
+    .string()
+    .refine((str) => !str.includes('YOUR_GOOGLE_CLIENT_SECRET_HERE')),
 });
 
 /**
@@ -44,6 +74,10 @@ export const serverEnv = {
   DATABASE_HOST: process.env.DATABASE_HOST,
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
   DATABASE_DATABASE: process.env.DATABASE_DATABASE,
+  AUTH_SECRET: process.env.AUTH_SECRET,
+  AUTH_URL: process.env.AUTH_URL,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 };
 
 /**
